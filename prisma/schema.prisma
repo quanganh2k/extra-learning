@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Decentralizations {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+  Users     Users[]
+}
+
+model Users {
+  id                  Int                   @id @default(autoincrement())
+  email               String                @unique
+  password            String
+  firstName           String
+  lastName            String
+  dob                 DateTime
+  gender              Int
+  address             String
+  phoneNumber         String
+  decentralization    Decentralizations?    @relation(fields: [decentralizationId], references: [id])
+  decentralizationId  Int?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt()
+  UserClass           UserClass[]
+  AcademicTranscripts AcademicTranscripts[]
+  Tests               Tests[]
+}
+
+model Subjects {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt()
+  Classes   Classes[]
+}
+
+model Grades {
+  id              Int       @id @default(autoincrement())
+  name            String    @unique
+  numberOfClasses Int
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt()
+  Classes         Classes[]
+}
+
+model Classes {
+  id               Int      @id @default(autoincrement())
+  name             String   @unique
+  numberOfStudents Int
+  studyTime        DateTime
+  startTime        DateTime
+  endTime          DateTime
+  fee              Float
+
+  subject   Subjects?   @relation(fields: [subjectId], references: [id])
+  subjectId Int?
+  grade     Grades?     @relation(fields: [gradeId], references: [id])
+  gradeId   Int?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt()
+  UserClass UserClass[]
+  Lessons   Lessons[]
+  Exams     Exams[]
+}
+
+model UserClass {
+  user      Users?   @relation(fields: [userId], references: [id])
+  userId    Int
+  class     Classes? @relation(fields: [classId], references: [id])
+  classId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  @@id([userId, classId])
+}
+
+model AcademicTranscripts {
+  id         Int      @id @default(autoincrement())
+  date       DateTime
+  firstTime  Float
+  secondTime Float
+  thirdTime  Float
+  fourthTime Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt()
+
+  user   Users? @relation(fields: [userId], references: [id])
+  userId Int?
+}
+
+model Lessons {
+  id           Int      @id @default(autoincrement())
+  learningDate DateTime
+  learningTime String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt()
+  class        Classes? @relation(fields: [classId], references: [id])
+  classId      Int?
+}
+
+model Exams {
+  id        Int      @id @default(autoincrement())
+  examDay   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  class   Classes? @relation(fields: [classId], references: [id])
+  classId Int?
+  Tests   Tests[]
+}
+
+model Tests {
+  id                Int      @id @default(autoincrement())
+  studentName       String
+  numberOfQuestions Int
+  maxScore          Float
+  scoreAchieved     Float
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt()
+
+  user   Users? @relation(fields: [userId], references: [id])
+  userId Int?
+  exam   Exams? @relation(fields: [examId], references: [id])
+  examId Int?
+}
