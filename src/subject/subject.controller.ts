@@ -14,10 +14,14 @@ import { SubjectService } from './subject.service';
 import { FiltersDto } from 'src/common/DTO/filters.dto';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { AddSubjectDto, EditSubjectDto } from './dto/subject.dto';
+import { ClassService } from 'src/class/class.service';
 
 @Controller('subject')
 export class SubjectController {
-  constructor(private readonly subjectService: SubjectService) {}
+  constructor(
+    private readonly subjectService: SubjectService,
+    private readonly classService: ClassService,
+  ) {}
 
   @Get(':id')
   async getSubjectDetails(@Param('id') id: string) {
@@ -116,6 +120,7 @@ export class SubjectController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteSubject(@Param('id') id: string) {
+    await this.classService.updateClassBeforeDelete(+id, 'subjectId');
     const result = await this.subjectService.deleteSubject(+id);
 
     return {
@@ -127,6 +132,9 @@ export class SubjectController {
   @UseGuards(JwtAuthGuard)
   @Delete()
   async deleteAllSubjects() {
+    const listSubjects = await this.subjectService.getOptionsSubject();
+    const subjectIds = listSubjects.map((el) => el.id);
+    await this.classService.updateClassBeforeDeleteAll(subjectIds, 'subjectId');
     await this.subjectService.deleteAllSubjects();
 
     return {

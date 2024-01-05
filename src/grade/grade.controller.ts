@@ -14,10 +14,14 @@ import { GradeService } from './grade.service';
 import { FiltersDto } from 'src/common/DTO/filters.dto';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { AddGradeDto, EditGradeDto } from './dto/grade.dto';
+import { ClassService } from 'src/class/class.service';
 
 @Controller('grade')
 export class GradeController {
-  constructor(private readonly gradeService: GradeService) {}
+  constructor(
+    private readonly gradeService: GradeService,
+    private readonly classService: ClassService,
+  ) {}
 
   @Get(':id')
   async getGradeDetails(@Param('id') id: string) {
@@ -112,6 +116,7 @@ export class GradeController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteGrade(@Param('id') id: string) {
+    await this.classService.updateClassBeforeDelete(+id, 'gradeId');
     const result = await this.gradeService.deleteGrade(+id);
 
     return {
@@ -123,6 +128,11 @@ export class GradeController {
   @UseGuards(JwtAuthGuard)
   @Delete()
   async deleteAllGrades() {
+    const listGrades = await this.gradeService.getOptionsGrade();
+    const gradeIds = listGrades.map((el) => el.id);
+
+    await this.classService.updateClassBeforeDeleteAll(gradeIds, 'gradeId');
+
     await this.gradeService.deleteAllGrades();
     return {
       message: 'Delete grade successfully',

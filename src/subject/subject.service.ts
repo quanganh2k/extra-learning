@@ -79,6 +79,11 @@ export class SubjectService {
     }
   }
 
+  async getOptionsSubject(): Promise<Subjects[]> {
+    const result = await this.prisma.subjects.findMany();
+    return result;
+  }
+
   async getSubjectById(id: number): Promise<Subjects> {
     const subject = await this.prisma.subjects.findUnique({
       where: {

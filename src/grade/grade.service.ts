@@ -40,6 +40,12 @@ export class GradeService {
     return listGrades;
   }
 
+  async getOptionsGrade(): Promise<Grades[]> {
+    const result = await this.prisma.grades.findMany();
+
+    return result;
+  }
+
   async getGradeById(id: number): Promise<Grades> {
     const grade = await this.prisma.grades.findUnique({
       where: {

@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Decentralizations {
   id        Int      @id @default(autoincrement())
   name      String   @unique
@@ -53,12 +52,10 @@ model Grades {
 }
 
 model Classes {
-  id               Int      @id @default(autoincrement())
-  name             String   @unique
+  id               Int    @id @default(autoincrement())
+  name             String @unique
   numberOfStudents Int
-  studyTime        DateTime
-  startTime        DateTime
-  endTime          DateTime
+  studyTime        String
   fee              Float
 
   subject   Subjects?   @relation(fields: [subjectId], references: [id])
@@ -100,7 +97,8 @@ model AcademicTranscripts {
 model Lessons {
   id           Int      @id @default(autoincrement())
   learningDate DateTime
-  learningTime String
+  startTime    DateTime
+  endTime      DateTime
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt()
   class        Classes? @relation(fields: [classId], references: [id])
