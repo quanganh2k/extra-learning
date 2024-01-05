@@ -119,12 +119,18 @@ export class DecentralizationController {
     const otherDecentralization =
       await this.decentralizationService.getDecentralizationByName(body.name);
 
-    if (otherDecentralization) {
+    if (
+      otherDecentralization &&
+      foundDecentralization.id !== otherDecentralization.id
+    ) {
       throw new BadRequestException('Decentralization name must be unique');
     }
 
     const updatedDecentralization =
-      await this.decentralizationService.editDecentralization(+id, body);
+      await this.decentralizationService.editDecentralization(
+        foundDecentralization.id,
+        body,
+      );
 
     return {
       message: 'Update decentralization successfully',
