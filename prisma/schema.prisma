@@ -95,19 +95,19 @@ model AcademicTranscripts {
 }
 
 model Lessons {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   learningDate DateTime
   startTime    DateTime
   endTime      DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt()
-  class        Classes? @relation(fields: [classId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt()
+  class        Classes?  @relation(fields: [classId], references: [id])
   classId      Int?
 }
 
 model Exams {
   id        Int      @id @default(autoincrement())
-  examDay   String
+  examDay   DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
 

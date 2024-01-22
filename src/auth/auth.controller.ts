@@ -19,10 +19,14 @@ import { AuthDto, ChangePasswordDto, SignInDto } from './dto/auth.dto';
 import { Request, Response } from 'express';
 import { FiltersDto } from 'src/common/DTO/filters.dto';
 import { JwtAuthGuard } from './jwt.guard';
+import { TestService } from 'src/test/test.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly testService: TestService,
+  ) {}
 
   @Post('signup')
   async signup(@Body() body: AuthDto) {
@@ -243,6 +247,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Delete('user/:id')
   async deleteUser(@Param('id') id: string) {
+    await this.testService.updateTestBeforeDelete(+id, 'userId');
     const user = await this.authService.deleteUser(+id);
 
     delete user.password;
@@ -255,8 +260,13 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Delete('user')
   async deleteAllUsers() {
-    const result = await this.authService.deleteAllUsers();
+    const listUsers = await this.authService.getOptionsUser();
+    const userIds = listUsers.map((el) => el.id);
+    await this.testService.updateTestBeforeDeleteAll(userIds, 'userId');
+    await this.authService.deleteAllUsers();
 
-    return result;
+    return {
+      message: 'Delete user successfully',
+    };
   }
 }

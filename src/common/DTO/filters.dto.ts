@@ -1,4 +1,9 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class FiltersDto {
   @IsNotEmpty()
@@ -12,4 +17,16 @@ export class FiltersDto {
   @IsOptional()
   @IsString()
   search: string;
+
+  @IsOptional()
+  @IsDateString()
+  targetDay: Date;
+
+  @IsOptional()
+  @IsDateString()
+  from: Date;
+
+  @IsOptional()
+  @IsDateString()
+  to: Date;
 }

@@ -120,6 +120,11 @@ export class AuthService {
     return listUsers;
   }
 
+  async getOptionsUser(): Promise<Users[]> {
+    const results = await this.prisma.users.findMany();
+    return results;
+  }
+
   async getUserById(id: number): Promise<Users> {
     const result = await this.prisma.users.findUnique({
       where: {

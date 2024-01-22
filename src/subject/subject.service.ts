@@ -28,7 +28,7 @@ export class SubjectService {
 
       return totalData;
     } else {
-      const listSubjects = await this.prisma.subjects.count({
+      const totalData = await this.prisma.subjects.count({
         where: {
           id: searchValue
             ? {
@@ -38,7 +38,7 @@ export class SubjectService {
         },
       });
 
-      return listSubjects;
+      return totalData;
     }
   }
 

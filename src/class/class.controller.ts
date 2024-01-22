@@ -14,10 +14,16 @@ import { ClassService } from './class.service';
 import { FiltersDto } from 'src/common/DTO/filters.dto';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { AddClassDto, EditClassDto } from './dto/class.dto';
+import { LessonService } from 'src/lesson/lesson.service';
+import { ExamService } from 'src/exam/exam.service';
 
 @Controller('class')
 export class ClassController {
-  constructor(private readonly classService: ClassService) {}
+  constructor(
+    private readonly classService: ClassService,
+    private readonly lessonService: LessonService,
+    private readonly examService: ExamService,
+  ) {}
 
   @Get(':id')
   async getClassDetails(@Param('id') id: string) {
@@ -111,6 +117,8 @@ export class ClassController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteClass(@Param('id') id: string) {
+    await this.lessonService.updateLessonBeforeDelete(+id, 'classId');
+    await this.examService.updateExamBeforeDelete(+id, 'classId');
     const result = await this.classService.deleteClass(+id);
 
     return {
@@ -122,6 +130,10 @@ export class ClassController {
   @UseGuards(JwtAuthGuard)
   @Delete()
   async deleteAllClasses() {
+    const listClasses = await this.classService.getOptionsClass();
+    const classIds = listClasses.map((el) => el.id);
+    await this.lessonService.updateLessonBeforeDeleteAll(classIds, 'classId');
+    await this.examService.updateExamBeforeDeleteAll(classIds, 'classId');
     await this.classService.deleteAllClasses();
 
     return {

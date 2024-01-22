@@ -45,6 +45,11 @@ export class ClassService {
     return listClasses;
   }
 
+  async getOptionsClass(): Promise<Classes[]> {
+    const listClasses = await this.prisma.classes.findMany();
+    return listClasses;
+  }
+
   async getClassById(id: number): Promise<Classes> {
     const result = await this.prisma.classes.findUnique({
       where: {
