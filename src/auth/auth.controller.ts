@@ -20,12 +20,16 @@ import { Request, Response } from 'express';
 import { FiltersDto } from 'src/common/DTO/filters.dto';
 import { JwtAuthGuard } from './jwt.guard';
 import { TestService } from 'src/test/test.service';
+import { UserClassService } from 'src/user-class/user-class.service';
+import { AcademicTranscriptService } from 'src/academic-transcript/academic-transcript.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly testService: TestService,
+    private readonly userClassService: UserClassService,
+    private readonly academicTranscriptService: AcademicTranscriptService,
   ) {}
 
   @Post('signup')
@@ -107,14 +111,19 @@ export class AuthController {
   @Get('user/:id')
   async getUserDetails(@Param('id') id: string) {
     const user = await this.authService.getUserById(+id);
+    const userClass = await this.userClassService.getAllUserClass(
+      'userId',
+      String(user.id),
+    );
 
     if (!user) {
       throw new NotFoundException();
     }
 
-    delete user.password;
+    const nextUser = { ...user, class: userClass };
+    delete nextUser.password;
     return {
-      data: user,
+      data: nextUser,
     };
   }
 
@@ -144,12 +153,22 @@ export class AuthController {
     };
 
     const listUsers = await this.authService.getAllUsers(parsedQuery);
+    const results = [];
+    for (let i = 0; i < listUsers.length; i++) {
+      const eachUser = listUsers[i];
+      const userClass = await this.userClassService.getAllUserClass(
+        'userId',
+        String(eachUser.id),
+      );
+      const nextUser = { ...eachUser, class: userClass };
+      results.push(nextUser);
+    }
 
     const totalUsers = await this.authService.countUsers(parsedQuery);
     const totalPage = Math.ceil(totalUsers / pageSize);
 
     return {
-      data: listUsers,
+      data: results,
       paging: {
         page,
         pageSize,
@@ -248,6 +267,8 @@ export class AuthController {
   @Delete('user/:id')
   async deleteUser(@Param('id') id: string) {
     await this.testService.updateTestBeforeDelete(+id, 'userId');
+    await this.userClassService.updateUserClassBeforeDelete(+id, 'userId');
+    await this.academicTranscriptService.updateBeforeDelete(+id, 'userId');
     const user = await this.authService.deleteUser(+id);
 
     delete user.password;
@@ -263,6 +284,11 @@ export class AuthController {
     const listUsers = await this.authService.getOptionsUser();
     const userIds = listUsers.map((el) => el.id);
     await this.testService.updateTestBeforeDeleteAll(userIds, 'userId');
+    await this.academicTranscriptService.updateBeforeDeleteAll(
+      userIds,
+      'userId',
+    );
+    await this.userClassService.deleteUserClass(userIds, 'userId');
     await this.authService.deleteAllUsers();
 
     return {

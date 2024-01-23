@@ -58,15 +58,16 @@ model Classes {
   studyTime        String
   fee              Float
 
-  subject   Subjects?   @relation(fields: [subjectId], references: [id])
-  subjectId Int?
-  grade     Grades?     @relation(fields: [gradeId], references: [id])
-  gradeId   Int?
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt()
-  UserClass UserClass[]
-  Lessons   Lessons[]
-  Exams     Exams[]
+  subject             Subjects?             @relation(fields: [subjectId], references: [id])
+  subjectId           Int?
+  grade               Grades?               @relation(fields: [gradeId], references: [id])
+  gradeId             Int?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt()
+  UserClass           UserClass[]
+  Lessons             Lessons[]
+  Exams               Exams[]
+  AcademicTranscripts AcademicTranscripts[]
 }
 
 model UserClass {
@@ -82,26 +83,29 @@ model UserClass {
 
 model AcademicTranscripts {
   id         Int      @id @default(autoincrement())
-  date       DateTime
+  month      DateTime
   firstTime  Float
   secondTime Float
   thirdTime  Float
   fourthTime Float
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt()
+  monthValue String?
 
-  user   Users? @relation(fields: [userId], references: [id])
-  userId Int?
+  user    Users?   @relation(fields: [userId], references: [id])
+  userId  Int?
+  class   Classes? @relation(fields: [classId], references: [id])
+  classId Int?
 }
 
 model Lessons {
-  id           Int       @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   learningDate DateTime
   startTime    DateTime
   endTime      DateTime
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt()
-  class        Classes?  @relation(fields: [classId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt()
+  class        Classes? @relation(fields: [classId], references: [id])
   classId      Int?
 }
 

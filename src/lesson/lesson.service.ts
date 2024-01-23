@@ -18,8 +18,6 @@ export class LessonService {
   ): Promise<{ results: Lessons[]; totalData: number }> {
     const { page, pageSize, targetDay, from, to } = query;
 
-    // const skipValue = (page - 1) * pageSize;
-
     let formatTargetDay;
     let fromTime;
     let toTime;

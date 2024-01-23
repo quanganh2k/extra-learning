@@ -9,6 +9,8 @@ import { LessonModule } from './lesson/lesson.module';
 import { GlobaleModule } from './global/global.module';
 import { ExamModule } from './exam/exam.module';
 import { TestModule } from './test/test.module';
+import { UserClassModule } from './user-class/user-class.module';
+import { AcademicTranscriptModule } from './academic-transcript/academic-transcript.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { TestModule } from './test/test.module';
     GlobaleModule,
     ExamModule,
     TestModule,
+    UserClassModule,
+    AcademicTranscriptModule,
   ],
 })
 export class AppModule {}

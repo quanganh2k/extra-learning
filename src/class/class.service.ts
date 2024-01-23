@@ -3,6 +3,8 @@ import { Classes } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { Filters } from 'src/common/models';
 import { AddClassDto, EditClassDto } from './dto/class.dto';
+import { countDayOccurrences, specifyDayOfWeek } from 'src/utils/helpers';
+import * as moment from 'moment';
 
 @Injectable()
 export class ClassService {
@@ -144,5 +146,31 @@ export class ClassService {
     });
 
     return results;
+  }
+
+  async calculateTotalFee(
+    month: Date,
+    studyTime: string,
+    fee: number,
+  ): Promise<number> {
+    const studyTimeArr = studyTime.split(',');
+    const days = [];
+    for (let i = 0; i < studyTimeArr.length; i++) {
+      const element = studyTimeArr[i].trim();
+      const elementArr = element.split(' ');
+      const specifyDay = elementArr.slice(0, 2).join(' ');
+
+      const dayOfWeek = specifyDayOfWeek(specifyDay);
+      days.push(dayOfWeek);
+    }
+
+    const formatMonth = moment
+      .utc(month, 'YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+      .format('YYYY-MM-DD');
+    const [year, monthValue] = formatMonth.split('-');
+
+    const dayOccurrences = countDayOccurrences(+year, +monthValue, days);
+    const totalFee = dayOccurrences * fee;
+    return totalFee;
   }
 }

@@ -16,6 +16,8 @@ import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { AddClassDto, EditClassDto } from './dto/class.dto';
 import { LessonService } from 'src/lesson/lesson.service';
 import { ExamService } from 'src/exam/exam.service';
+import { UserClassService } from 'src/user-class/user-class.service';
+import { AcademicTranscriptService } from 'src/academic-transcript/academic-transcript.service';
 
 @Controller('class')
 export class ClassController {
@@ -23,7 +25,25 @@ export class ClassController {
     private readonly classService: ClassService,
     private readonly lessonService: LessonService,
     private readonly examService: ExamService,
+    private readonly userClassService: UserClassService,
+    private readonly academicTranscriptService: AcademicTranscriptService,
   ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/fee')
+  async getTotalFeeOfClass(@Query() query: { month: Date; classId: string }) {
+    const { month, classId } = query;
+    const classInformation = await this.classService.getClassById(+classId);
+    const totalFee = await this.classService.calculateTotalFee(
+      month,
+      classInformation.studyTime,
+      classInformation.fee,
+    );
+
+    return {
+      data: totalFee,
+    };
+  }
 
   @Get(':id')
   async getClassDetails(@Param('id') id: string) {
@@ -119,6 +139,8 @@ export class ClassController {
   async deleteClass(@Param('id') id: string) {
     await this.lessonService.updateLessonBeforeDelete(+id, 'classId');
     await this.examService.updateExamBeforeDelete(+id, 'classId');
+    await this.userClassService.updateUserClassBeforeDelete(+id, 'classId');
+    await this.academicTranscriptService.updateBeforeDelete(+id, 'classId');
     const result = await this.classService.deleteClass(+id);
 
     return {
@@ -134,6 +156,11 @@ export class ClassController {
     const classIds = listClasses.map((el) => el.id);
     await this.lessonService.updateLessonBeforeDeleteAll(classIds, 'classId');
     await this.examService.updateExamBeforeDeleteAll(classIds, 'classId');
+    await this.userClassService.deleteUserClass(classIds, 'classId');
+    await this.academicTranscriptService.updateBeforeDeleteAll(
+      classIds,
+      'classId',
+    );
     await this.classService.deleteAllClasses();
 
     return {
